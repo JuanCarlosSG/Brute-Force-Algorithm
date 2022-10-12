@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-void testRules();
+void BruteForceAlgorithm();
+unsigned int getFunctionValue(const char*);
 
 #define MAX_LONGITUD 200
 
@@ -42,6 +43,7 @@ enum PARSE_STATE {q=0, b, t} STATE;
     t = termination state
 */
 unsigned int T_HIST; // Points to the top of HIST Stack
+unsigned int CASE = 0; // Current configuration of the sentenial form
 
 unsigned int LHS_ELEMENTS_COUNT = 0;
 unsigned int RHS_ELEMENTS_COUNT = 0;
@@ -134,7 +136,6 @@ int main( int argc, char* argv[] )
 		strcpy(file_name, argv[1]);
 		n = strlen(argv[2]);
         strcpy(T, argv[2]);
-		STATE = q;
         printf("Cadena ingresada: %s\n", T);
 		yyin = fopen(file_name, "r" );
 		if (yyin)
@@ -148,5 +149,131 @@ int main( int argc, char* argv[] )
 		return(1);
 	}
 	yylex();
+	BruteForceAlgorithm();
 	return(0);
+}
+
+// FIX ME
+void BruteForceAlgorithm() {
+	STATE = q;
+	i = 0;
+	HIST[0].P = 0;
+	strcpy(HIST[0].SYMB, "");
+	T_HIST = 0;
+	strcpy(SENT, LHS[0].NT);
+	strcat(SENT, "#");
+
+	char help [MAX_LONGITUD] = "";
+	char help2 [MAX_LONGITUD] = "";
+
+	bool band = true;
+	
+	while(band) {
+
+		unsigned int p = HIST[T_HIST].P;
+		char s [MAX_LONGITUD];
+		strcpy(s, HIST[T_HIST].SYMB);
+		char t_local [MAX_LONGITUD]; 
+		strncpy(t_local, &SENT[0], 1); // TRY ME
+		
+		if (STATE == q && i == n+1 && strcmp(t_local, "#")) {
+			CASE = 3;
+		} else if (STATE == q) {
+			if (getFunctionValue(t_local) > 0) {
+				CASE = 1;
+				strcpy(help, "");
+				strncpy(help, &T[i], 1); // TRY ME
+				if(strcmp(t_local, help)) {
+					CASE = 2;
+				} else {
+					CASE = 4;
+				}
+			} else if (getFunctionValue(t_local) == 0) {
+				CASE = 5;
+				if (p < LHS[getFunctionValue(s)].MAX) {
+					CASE = 6;
+				} else if (i == 1 && s == LHS[0].NT) {
+					printf("UNSUCCESSFUL PARSE");
+					band = false;
+				} else {
+					CASE = 7;
+				}
+			}
+		}
+
+		switch(CASE) {
+			case 1:
+				T_HIST++;
+				HIST[T_HIST].P = 1;
+				strcpy(HIST[T_HIST].SYMB, t_local);
+				strcpy(SENT, RHS[LHS[getFunctionValue(t_local)].FIRST]);
+				strcpy(help, "");
+				strncpy(help, &SENT[0], 2); // TRY ME
+				strcat(SENT, help);
+				break;
+			case 2:
+				T_HIST++;
+				HIST[T_HIST].P = 0;
+				strcpy(HIST[T_HIST].SYMB, t_local);
+				i++;
+				strncpy(SENT, &SENT[0], 2); // TRY ME
+				break;
+			case 3:
+				STATE = t;
+				strcpy(SENT, "");
+				printf("SUCCESSFUL PARSE");
+				band = false;
+				break;
+			case 4:
+				STATE = b;
+				break;
+			case 5:
+				i--;
+				T_HIST--;
+				strcpy(help, "");
+				strcpy(help, s);
+				strcat(help, SENT);
+				strcpy(SENT, help);
+				break;
+			case 6: 
+				STATE = q;
+				HIST[T_HIST].P = p + 1;
+				strcpy(help, "");
+				strcpy(help2, "");
+				strcpy(help, RHS[LHS[getFunctionValue(t_local)].FIRST + p]);
+				strncpy(help2, &SENT[0], (sizeof(RHS[LHS[getFunctionValue(t_local)].FIRST]+p-1))+1); // TRY ME
+				strcat(help, help2);
+				strcpy(SENT, help);
+				break;
+			default:
+				strcpy(help, "");
+				strcpy(help2, "");
+				strcpy(help, s);
+				strncpy(help2, &SENT[0], (sizeof(RHS[LHS[getFunctionValue(t_local)].FIRST]+p-1))+1); // TRY ME
+				strcat(help, help2);
+				strcpy(SENT, help);
+				T_HIST--;
+				break;
+		}
+
+	}
+		
+}
+
+unsigned int getFunctionValue(const char *x) {
+	bool found = false;
+	unsigned int position = 0;
+	for(unsigned int j = 0; j < LHS_ELEMENTS_COUNT; j++) {
+		if(strcmp(LHS[j].NT, x) == 0) {
+			found = true;
+			position = j;
+			break;
+		}
+	}
+
+	if (found) {
+		return LHS[position].MAX;
+	} else {
+		return 0;
+	}
 }
