@@ -149,7 +149,7 @@ int main( int argc, char* argv[] )
 		return(1);
 	}
 	yylex();
-	BruteForceAlgorithm();
+	//BruteForceAlgorithm();
 	return(0);
 }
 
@@ -165,10 +165,8 @@ void BruteForceAlgorithm() {
 
 	char help [MAX_LONGITUD] = "";
 	char help2 [MAX_LONGITUD] = "";
-
-	bool band = true;
 	
-	while(band) {
+	while(true) {
 
 		unsigned int p = HIST[T_HIST].P;
 		char s [MAX_LONGITUD];
@@ -178,25 +176,32 @@ void BruteForceAlgorithm() {
 		
 		if (STATE == q && i == n+1 && strcmp(t_local, "#")) {
 			CASE = 3;
-		} else if (STATE == q) {
-			if (getFunctionValue(t_local) > 0) {
-				CASE = 1;
-				strcpy(help, "");
-				strncpy(help, &T[i], 1); // TRY ME
-				if(strcmp(t_local, help)) {
-					CASE = 2;
-				} else {
-					CASE = 4;
+		} else {
+			if (STATE == q) {
+				if (getFunctionValue(t_local) > 0) {
+					CASE = 1;
+					strcpy(help, "");
+					strncpy(help, &T[i], 1); // TRY ME
+				} else  {
+					if(strcmp(t_local, help)) {
+						CASE = 2;
+					} else {
+						CASE = 4;
+					}
 				}
-			} else if (getFunctionValue(t_local) == 0) {
-				CASE = 5;
-				if (p < LHS[getFunctionValue(s)].MAX) {
-					CASE = 6;
-				} else if (i == 1 && s == LHS[0].NT) {
-					printf("UNSUCCESSFUL PARSE");
-					band = false;
-				} else {
-					CASE = 7;
+			} else {
+				if (getFunctionValue(t_local) == 0) {
+					CASE = 5;
+					if (p < LHS[getFunctionValue(s)].MAX) {
+						CASE = 6;
+					} else {
+						if (i == 1 && s == LHS[0].NT) {
+							printf("UNSUCCESSFUL PARSE");
+							exit(1);
+						} else {
+							CASE = 7;
+						}
+					}
 				}
 			}
 		}
@@ -222,7 +227,7 @@ void BruteForceAlgorithm() {
 				STATE = t;
 				strcpy(SENT, "");
 				printf("SUCCESSFUL PARSE");
-				band = false;
+				exit(0);
 				break;
 			case 4:
 				STATE = b;
