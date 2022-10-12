@@ -1885,7 +1885,7 @@ int main( int argc, char* argv[] )
 		return(1);
 	}
 	yylex();
-	//BruteForceAlgorithm();
+	BruteForceAlgorithm();
 	return(0);
 }
 
@@ -1902,7 +1902,7 @@ void BruteForceAlgorithm() {
 	char help [MAX_LONGITUD] = "";
 	char help2 [MAX_LONGITUD] = "";
 	
-	//while(true) {
+	while(true) {
 
 		unsigned int p = HIST[T_HIST].P;
 		char s [MAX_LONGITUD];
@@ -1997,7 +1997,7 @@ void BruteForceAlgorithm() {
 				break;
 		}
 
-	//}
+	}
 		
 }
 
