@@ -1907,6 +1907,7 @@ void BruteForceAlgorithm() {
 
 	char help [MAX_LONGITUD] = "";
 	char help2 [MAX_LONGITUD] = "";
+	char help3 [MAX_LONGITUD] = "";
 	
 	unsigned int CASE = 0; // Current configuration of the sentenial form
 	
@@ -2006,9 +2007,8 @@ void BruteForceAlgorithm() {
 				strcpy(help, "");
 				strcpy(help2, "");
 				strcpy(help, RHS[LHS[getFunctionValue(s)].FIRST + p]);
-				strcpy(help2, SENT + (strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]) + 1));
+				strcpy(help2, SENT + (strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1])));
 				strcat(help, help2);
-				strcat(help, "#");
 				strcpy(SENT, help);
 				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
 				break;
@@ -2017,8 +2017,9 @@ void BruteForceAlgorithm() {
 				strcpy(help, "");
 				strcpy(help2, "");
 				strcpy(help, &s);
-				strcpy(help2, SENT + (strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]) + 1));
+				strcpy(help2, SENT + strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]));
 				strcat(help, help2);
+				//printf("SENT + %lu = %s\n",strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]), SENT + strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]));
 				strcpy(SENT, help);
 				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
 				T_HIST--;
