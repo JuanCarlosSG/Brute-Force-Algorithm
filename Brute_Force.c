@@ -449,22 +449,22 @@ char *yytext;
 #pragma warning(disable: 4996 6387 6011 6385)
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <stdbool.h>
 
 void BruteForceAlgorithm();
-unsigned int getFunctionValue(const char*);
+void showTables();
+int getFunctionValue(const char);
 
 #define MAX_LONGITUD 200
 
 typedef struct {
-    char NT[MAX_LONGITUD]; // String representing non terminal symbol
+    char NT; // String representing non terminal symbol
     unsigned int MAX; // Number of productions that have this non terminal symbol
     unsigned int FIRST; // Index of the RHS array where the first rule of the NT is located
 } LHS_Element;
 
 typedef struct {
-    char SYMB[MAX_LONGITUD]; // Stack stymbol (terminal or nonterminal)
+    char SYMB; // Stack symbol (terminal or nonterminal)
     unsigned int P; // Number of the alterate for the nonterminal or 0 if contains terminal or empty
 } HIST_Element;
 
@@ -484,12 +484,11 @@ unsigned int i;
 enum PARSE_STATE {q=0, b, t} STATE;
 /*
 	State of parse
-    q = normal state
-    b = backtracking state
-    t = termination state
+    q = 0 = normal state
+    b = 1 = backtracking state
+    t = 2 = termination state
 */
 unsigned int T_HIST; // Points to the top of HIST Stack
-unsigned int CASE = 0; // Current configuration of the sentenial form
 
 unsigned int LHS_ELEMENTS_COUNT = 0;
 unsigned int RHS_ELEMENTS_COUNT = 0;
@@ -501,9 +500,9 @@ YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH]; /* PILA para archivos */
 
 int include_stack_ptr = 0;
 
-#line 504 "Brute_Force.c"
+#line 503 "Brute_Force.c"
 
-#line 506 "Brute_Force.c"
+#line 505 "Brute_Force.c"
 
 #define INITIAL 0
 #define ANALISIS 1
@@ -721,10 +720,10 @@ YY_DECL
 		}
 
 	{
-#line 65 "BruteForce.lex"
+#line 64 "BruteForce.lex"
 
 
-#line 727 "Brute_Force.c"
+#line 726 "Brute_Force.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -783,7 +782,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 67 "BruteForce.lex"
+#line 66 "BruteForce.lex"
 { /* Cualquier caracter que no sea un cambio de linea */
 
     if ( include_stack_ptr >= MAX_INCLUDE_DEPTH ) {
@@ -804,7 +803,7 @@ YY_RULE_SETUP
 		switch(band) {
 			case 0:
 				for(unsigned int i = 0; i < LHS_ELEMENTS_COUNT; i++) {
-					if(strcmp((LHS[i]).NT, instance) == 0) {
+					if(LHS[i].NT == *instance) {
 						found = true;
 						position = i;
 						break;
@@ -812,7 +811,7 @@ YY_RULE_SETUP
 				}
 
 				if(!found) {
-					strcpy(LHS[LHS_ELEMENTS_COUNT].NT, instance);
+					LHS[LHS_ELEMENTS_COUNT].NT = *instance;
 					LHS[LHS_ELEMENTS_COUNT].MAX = 1;
 					position_nt = LHS_ELEMENTS_COUNT;
 					LHS_ELEMENTS_COUNT++;
@@ -837,29 +836,29 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 117 "BruteForce.lex"
+#line 116 "BruteForce.lex"
 
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(ANALISIS):
-#line 119 "BruteForce.lex"
-{ /* EOF detected when the SongDirectory.txt ends */
+#line 118 "BruteForce.lex"
+{ /* EOF detected when the .txt ends */
 		if ( --include_stack_ptr < 0 ) {
 			yyterminate();
 		} else {
 			yy_delete_buffer( YY_CURRENT_BUFFER );
 			yy_switch_to_buffer( include_stack[include_stack_ptr] );
-			printf("Cerrando el archivo %s\n",file_name );
+			printf("Clossing file : %s\n",file_name );
 			BEGIN(INITIAL);
 		}
 	}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 130 "BruteForce.lex"
+#line 129 "BruteForce.lex"
 ECHO;
 	YY_BREAK
-#line 862 "Brute_Force.c"
+#line 861 "Brute_Force.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1862,7 +1861,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 130 "BruteForce.lex"
+#line 129 "BruteForce.lex"
 
 
 int main( int argc, char* argv[] )
@@ -1872,68 +1871,78 @@ int main( int argc, char* argv[] )
 		strcpy(file_name, argv[1]);
 		n = strlen(argv[2]);
         strcpy(T, argv[2]);
-        printf("Cadena ingresada: %s\n", T);
+        printf("\nInput : '%s'\n", T);
 		yyin = fopen(file_name, "r" );
 		if (yyin)
 		{
-			printf("Leyendo del archivo: %s\n", file_name);
+			printf("Reading file : %s\n", file_name);
 		}
 	}
 	else
 	{
-		printf("Este programa solo lee de un archivo no puede leer de una entrada de teclado");
+		printf("\nThis runnable can't read arguments from the command line.\n");
 		return(1);
 	}
 	yylex();
+	//showTables();
 	BruteForceAlgorithm();
 	return(0);
 }
 
 // FIX ME
 void BruteForceAlgorithm() {
-	STATE = q;
-	i = 0;
-	HIST[0].P = 0;
-	strcpy(HIST[0].SYMB, "");
-	T_HIST = 0;
-	strcpy(SENT, LHS[0].NT);
-	strcat(SENT, "#");
+
+	printf("\nStarting Brute Force Algorithm\n\n");
+
+	// Initialize
+
+	strcat(T, "#");				// T <- T º '#'
+	STATE = q; 					// STATE <- 'q'
+	i = 0; 						// i <- 0
+	HIST[0].P = 0;				// P#[1] <- 0
+	HIST[0].SYMB = ' '; 		// SYMB[1] <- ' '
+	T_HIST = 0; 				// T_HIST <- 1
+	strcpy(SENT, &LHS[0].NT);
+	strcat(SENT, "#"); 			// SENT <- NT[1] º '#'
 
 	char help [MAX_LONGITUD] = "";
 	char help2 [MAX_LONGITUD] = "";
 	
+	unsigned int CASE = 0; // Current configuration of the sentenial form
+	
+	// [Loop until parse is either successful or unsuccessful]
 	while(true) {
-
-		unsigned int p = HIST[T_HIST].P;
-		char s [MAX_LONGITUD];
-		strcpy(s, HIST[T_HIST].SYMB);
-		char t_local [MAX_LONGITUD]; 
-		strncpy(t_local, &SENT[0], 1); // TRY ME
 		
-		if (STATE == q && i == n+1 && strcmp(t_local, "#")) {
-			CASE = 3;
+		//[Get stack-top elements and determine current configuration]
+
+		unsigned int p = HIST[T_HIST].P; // p <- P#[T_HIST]
+		char s = HIST[T_HIST].SYMB;		 // s <- SYMB[T_HIST]
+		char t_local = SENT[0];   		 // t <- SUB(SENT, 1, 1)
+		// (Determine stack-top elements)
+
+		if (STATE == q && i == n && t_local == '#') {
+			CASE = 3; // (case 3)
 		} else {
 			if (STATE == q) {
-				if (getFunctionValue(t_local) > 0) {
+				if (getFunctionValue(t_local) > -1) {
 					CASE = 1;
-					strcpy(help, "");
-					strncpy(help, &T[i], 1); // TRY ME
 				} else  {
-					if(strcmp(t_local, help)) {
+					if(t_local == T[i]) {
 						CASE = 2;
 					} else {
 						CASE = 4;
 					}
 				}
 			} else {
-				if (getFunctionValue(t_local) == 0) {
+				if (getFunctionValue(s) == -1) {
 					CASE = 5;
+				} else {
 					if (p < LHS[getFunctionValue(s)].MAX) {
 						CASE = 6;
 					} else {
 						if (i == 1 && s == LHS[0].NT) {
-							printf("UNSUCCESSFUL PARSE");
-							exit(1);
+							printf("\nUNSUCCESSFUL PARSE\n\n");
+							break;
 						} else {
 							CASE = 7;
 						}
@@ -1942,70 +1951,88 @@ void BruteForceAlgorithm() {
 			}
 		}
 
+		// [Select the correct case]
+
 		switch(CASE) {
 			case 1:
+				printf("(Case 1: (%u, %d, %c, %s) |- ", STATE, i, t_local, SENT);
 				T_HIST++;
 				HIST[T_HIST].P = 1;
-				strcpy(HIST[T_HIST].SYMB, t_local);
-				strcpy(SENT, RHS[LHS[getFunctionValue(t_local)].FIRST]);
+				HIST[T_HIST].SYMB = t_local;
 				strcpy(help, "");
-				strncpy(help, &SENT[0], 2); // TRY ME
+				strcpy(help, SENT + 1);
+				strcpy(SENT, RHS[LHS[getFunctionValue(t_local)].FIRST]);
 				strcat(SENT, help);
+				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
 				break;
 			case 2:
+				printf("(Case 2: (%u, %d, %c, %s) |- ", STATE, i, t_local, SENT);
 				T_HIST++;
 				HIST[T_HIST].P = 0;
-				strcpy(HIST[T_HIST].SYMB, t_local);
+				HIST[T_HIST].SYMB = t_local;
 				i++;
-				strncpy(SENT, &SENT[0], 2); // TRY ME
+				strcpy(help, "");
+				strcpy(help, SENT + 1);
+				strcpy(SENT, help);
+				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
 				break;
 			case 3:
+				printf("(Case 3: (%u, %d, %c, %s) |- ", STATE, i, t_local, SENT);
 				STATE = t;
 				strcpy(SENT, "");
-				printf("SUCCESSFUL PARSE");
+				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
+				printf("\nSUCCESSFUL PARSE\n\n");
 				exit(0);
 				break;
 			case 4:
+				printf("(Case 4: (%u, %d, %c, %s) |- ", STATE, i, t_local, SENT);
 				STATE = b;
+				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
 				break;
 			case 5:
+				printf("(Case 5: (%u, %d, %c, %s) |- ", STATE, i, t_local, SENT);
 				i--;
 				T_HIST--;
 				strcpy(help, "");
-				strcpy(help, s);
+				strcpy(help, &s);
 				strcat(help, SENT);
 				strcpy(SENT, help);
+				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
 				break;
-			case 6: 
+			case 6:
+				printf("(Case 6: (%u, %d, %c, %s) |- ", STATE, i, t_local, SENT);
 				STATE = q;
 				HIST[T_HIST].P = p + 1;
 				strcpy(help, "");
 				strcpy(help2, "");
-				strcpy(help, RHS[LHS[getFunctionValue(t_local)].FIRST + p]);
-				strncpy(help2, &SENT[0], (sizeof(RHS[LHS[getFunctionValue(t_local)].FIRST]+p-1))+1); // TRY ME
+				strcpy(help, RHS[LHS[getFunctionValue(s)].FIRST + p]);
+				strcpy(help2, SENT + (strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]) + 1));
 				strcat(help, help2);
+				strcat(help, "#");
 				strcpy(SENT, help);
+				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
 				break;
 			default:
+				printf("(Case 7: (%u, %d, %c, %s) |- ", STATE, i, t_local, SENT);
 				strcpy(help, "");
 				strcpy(help2, "");
-				strcpy(help, s);
-				strncpy(help2, &SENT[0], (sizeof(RHS[LHS[getFunctionValue(t_local)].FIRST]+p-1))+1); // TRY ME
+				strcpy(help, &s);
+				strcpy(help2, SENT + (strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]) + 1));
 				strcat(help, help2);
 				strcpy(SENT, help);
+				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
 				T_HIST--;
 				break;
 		}
 
 	}
-		
 }
 
-unsigned int getFunctionValue(const char *x) {
+int getFunctionValue(const char x) {
 	bool found = false;
 	unsigned int position = 0;
 	for(unsigned int j = 0; j < LHS_ELEMENTS_COUNT; j++) {
-		if(strcmp(LHS[j].NT, x) == 0) {
+		if(LHS[j].NT == x) {
 			found = true;
 			position = j;
 			break;
@@ -2013,9 +2040,20 @@ unsigned int getFunctionValue(const char *x) {
 	}
 
 	if (found) {
-		return LHS[position].MAX;
+		return position;
 	} else {
-		return 0;
+		return -1;
 	}
 }
 
+void showTables() {
+	printf("\nLHS\n\nNT\tMAX\tFIRST\n");
+	for(unsigned int k = 0; k < LHS_ELEMENTS_COUNT; k++) {
+		printf("%c\t%d\t%d\n", LHS[k].NT, LHS[k].MAX, LHS[k].FIRST);
+	}
+	printf("\nRHS\n\n");
+	for(unsigned int k = 0; k < RHS_ELEMENTS_COUNT; k++) {
+		printf("%s\n", RHS[k]);
+	}
+	printf("\n");
+}
