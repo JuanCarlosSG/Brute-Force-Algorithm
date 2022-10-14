@@ -259,7 +259,8 @@ void BruteForceAlgorithm() {
 				i--;
 				T_HIST--;
 				strcpy(help, "");
-				strcpy(help, &s);
+				help[0] = s;
+				help[1] = '\0';
 				strcat(help, SENT);
 				strcpy(SENT, help);
 				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
@@ -280,7 +281,8 @@ void BruteForceAlgorithm() {
 				printf("(Case 7: (%u, %d, %c, %s) |- ", STATE, i, t_local, SENT);
 				strcpy(help, "");
 				strcpy(help2, "");
-				strcpy(help, &s);
+				help[0] = s;
+				help[1] = '\0';
 				strcpy(help2, SENT + strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]));
 				strcat(help, help2);
 				strcpy(SENT, help);
