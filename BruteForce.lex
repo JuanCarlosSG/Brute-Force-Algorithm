@@ -283,7 +283,6 @@ void BruteForceAlgorithm() {
 				strcpy(help, &s);
 				strcpy(help2, SENT + strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]));
 				strcat(help, help2);
-				//printf("SENT + %lu = %s\n",strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]), SENT + strlen(RHS[LHS[getFunctionValue(s)].FIRST + p - 1]));
 				strcpy(SENT, help);
 				printf("(%u, %d, %c, %s))\n", STATE, i, t_local, SENT);
 				T_HIST--;
