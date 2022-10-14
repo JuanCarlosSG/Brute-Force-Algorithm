@@ -1920,7 +1920,7 @@ void BruteForceAlgorithm() {
 		char s = HIST[T_HIST].SYMB;		 // s <- SYMB[T_HIST]
 		char t_local = SENT[0];   		 // t <- SUB(SENT, 1, 1)
 		// (Determine stack-top elements)
-
+		
 		if (STATE == q && i == n && t_local == '#') {
 			CASE = 3; // (case 3)
 		} else {
@@ -1941,8 +1941,9 @@ void BruteForceAlgorithm() {
 					if (p < LHS[getFunctionValue(s)].MAX) {
 						CASE = 6;
 					} else {
-						if (i == 1 && s == LHS[0].NT) {
+						if (i == 0 && s == LHS[0].NT) {
 							printf("\nUNSUCCESSFUL PARSE\n\n");
+							exit(0);
 							break;
 						} else {
 							CASE = 7;
@@ -1992,7 +1993,9 @@ void BruteForceAlgorithm() {
 				break;
 			case 5:
 				printf("(Case 5: (%u, %d, %c, %s) |- ", STATE, i, t_local, SENT);
-				i--;
+				if(i > 0) {
+					i--;
+				}
 				T_HIST--;
 				strcpy(help, "");
 				help[0] = s;
